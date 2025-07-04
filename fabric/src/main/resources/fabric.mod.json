@@ -1,0 +1,35 @@
+{
+  "schemaVersion": 1,
+  "id": "bgm_player",
+  "version": "${version}",
+  "name": "BGM Player",
+  "description": "This is an example description! Tell everyone what your mod is about!",
+  "authors": [
+    "Me!"
+  ],
+  "contact": {
+    "homepage": "https://fabricmc.net/",
+    "sources": "https://github.com/FabricMC/fabric-example-mod"
+  },
+  "license": "CC0-1.0",
+  "icon": "assets/bgm_player/icon.png",
+  "environment": "*",
+  "entrypoints": {
+    "main": [
+      "com.iafenvoy.bgm.player.fabric.BGMPlayerFabric"
+    ],
+    "client": [
+      "com.iafenvoy.bgm.player.fabric.client.BGMPlayerFabricClient"
+    ],
+    "modmenu": [
+      "com.iafenvoy.bgm.player.fabric.ModMenu"
+    ]
+  },
+  "mixins": [
+    "bgm_player.mixins.json"
+  ],
+  "depends": {
+    "fabricloader": "*",
+    "minecraft": "~1.20.1"
+  }
+}

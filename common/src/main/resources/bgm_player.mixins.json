@@ -1,0 +1,15 @@
+{
+  "required": true,
+  "package": "com.iafenvoy.bgm.player.mixin",
+  "compatibilityLevel": "JAVA_17",
+  "minVersion": "0.8",
+  "client": [
+    "MinecraftClientMixin",
+    "MusicTrackerMixin"
+  ],
+  "mixins": [
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}
