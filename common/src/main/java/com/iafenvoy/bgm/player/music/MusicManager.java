@@ -4,6 +4,9 @@ import com.google.gson.JsonParser;
 import com.iafenvoy.bgm.player.BGMPlayer;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.JsonOps;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
 import java.io.FileReader;
@@ -12,13 +15,15 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
+@Environment(EnvType.CLIENT)
 public final class MusicManager {
-    public static final String FOLDER = "./config/bgm-player/";
+    static final String FOLDER = "./config/bgm-player/";
+    @Nullable
+    private static AudioPlayer PLAYER;
     private static final List<MusicData> DATA = new LinkedList<>();
-    private static final AudioPlayer PLAYER;
-    private static boolean bootstraped;
 
-    static {
+    private static void load() {
+        DATA.clear();
         Map<String, MusicData> byId = new LinkedHashMap<>();
         File musicFolder = new File(FOLDER + "music");
         File[] musics = musicFolder.listFiles();
@@ -41,25 +46,20 @@ public final class MusicManager {
         }
         DATA.addAll(byId.values());
         BGMPlayer.LOGGER.info("Successfully loaded {} bgm data.", DATA.size());
-        PLAYER = new AudioPlayer(DATA);
     }
 
     public static List<MusicData> getData() {
         return List.copyOf(DATA);
     }
 
-    public static AudioPlayer getPlayer() {
-        return PLAYER;
+    public static void createPlayer() {
+        load();
+        PLAYER = new AudioPlayer(getData());
+        PLAYER.play();
     }
 
-    public static void startPlaying() {
-        if (!bootstraped) {
-            bootstraped = true;
-            try {
-                PLAYER.play();
-            } catch (Exception e) {
-                throw new RuntimeException(e);
-            }
-        }
+    public static void destroyPlayer() {
+        if (PLAYER != null) PLAYER.destroyOpenAL();
+        PLAYER = null;
     }
 }
