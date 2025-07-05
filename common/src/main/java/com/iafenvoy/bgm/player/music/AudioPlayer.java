@@ -1,7 +1,7 @@
 package com.iafenvoy.bgm.player.music;
 
 import com.iafenvoy.bgm.player.BGMPlayer;
-import javazoom.jl.player.Player;
+import fr.delthas.javamp3.Sound;
 import org.jetbrains.annotations.Nullable;
 import org.lwjgl.openal.*;
 import org.lwjgl.stb.STBVorbis;
@@ -12,11 +12,14 @@ import org.lwjgl.system.MemoryUtil;
 import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
+import java.io.BufferedInputStream;
 import java.io.File;
-import java.io.FileInputStream;
+import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.IntBuffer;
 import java.nio.ShortBuffer;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.List;
 
 public class AudioPlayer {
@@ -42,6 +45,7 @@ public class AudioPlayer {
 
     public void destroyOpenAL() {
         BGMPlayer.LOGGER.info("Game closing, shutdown BGM Player's OpenAL context.");
+        this.stop();
         AL10.alDeleteSources(this.source);
         ALC10.alcDestroyContext(this.context);
         ALC10.alcCloseDevice(this.device);
@@ -84,15 +88,13 @@ public class AudioPlayer {
         AL10.alSourcePlay(this.source);
     }
 
-    private void playOGG(String filepath) throws Exception {
+    private void playOGG(String filepath) {
         try (MemoryStack stack = MemoryStack.stackPush()) {
             IntBuffer error = stack.mallocInt(1);
             long decoder = STBVorbis.stb_vorbis_open_filename(filepath, error, null);
-            if (decoder == MemoryUtil.NULL) {
-                throw new RuntimeException("Failed to open OGG file");
-            }
+            if (decoder == MemoryUtil.NULL) throw new RuntimeException("Failed to open OGG file");
 
-            STBVorbisInfo info = STBVorbisInfo.mallocStack(stack);
+            STBVorbisInfo info = STBVorbisInfo.malloc(stack);
             STBVorbis.stb_vorbis_get_info(decoder, info);
 
             int channels = info.channels();
@@ -106,29 +108,27 @@ public class AudioPlayer {
 
             int buffer = AL10.alGenBuffers();
             AL10.alBufferData(buffer, format, pcm, sampleRate);
-
             AL10.alSourcei(this.source, AL10.AL_BUFFER, buffer);
             AL10.alSourcei(this.source, AL10.AL_LOOPING, this.looping ? AL10.AL_TRUE : AL10.AL_FALSE);
             AL10.alSourcePlay(this.source);
-
             STBVorbis.stb_vorbis_close(decoder);
         }
     }
 
-    private void playMP3(String filepath) throws Exception {
-        new Thread(() -> {
-            try {
-                Player mp3Player = new Player(new FileInputStream(filepath));
-                mp3Player.play();
-                if (this.looping) {
-                    this.play(this.currentIndex);
-                } else {
-                    this.onSongFinished();
-                }
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }).start();
+    private void playMP3(String filepath) {
+        try (Sound sound = new Sound(new BufferedInputStream(Files.newInputStream(Path.of(filepath))))) {
+            int channels = sound.isStereo() ? AL10.AL_FORMAT_STEREO16 : AL10.AL_FORMAT_MONO16;
+            int sampleRate = sound.getSamplingFrequency();
+            byte[] bufferArray = sound.readAllBytes();
+
+            int buffer = AL10.alGenBuffers();
+            AL10.alBufferData(buffer, channels, MemoryUtil.memAlloc(bufferArray.length).put(bufferArray).flip(), sampleRate);
+            AL10.alSourcei(this.source, AL10.AL_BUFFER, buffer);
+            AL10.alSourcei(this.source, AL10.AL_LOOPING, this.looping ? AL10.AL_TRUE : AL10.AL_FALSE);
+            AL10.alSourcePlay(this.source);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     public void next() throws Exception {
