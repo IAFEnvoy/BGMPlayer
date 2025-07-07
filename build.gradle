@@ -37,7 +37,7 @@ subprojects {
         minecraft "net.minecraft:minecraft:$rootProject.minecraft_version"
         mappings "net.fabricmc:yarn:$rootProject.yarn_mappings:v2"
 
-        implementation(include('fr.delthas:javamp3:1.0.1'))
+        implementation 'fr.delthas:javamp3:1.0.1'
     }
 
     java {

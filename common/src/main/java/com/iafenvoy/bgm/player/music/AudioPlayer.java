@@ -9,6 +9,7 @@ import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.sound.SoundCategory;
+import net.minecraft.util.StringIdentifiable;
 import org.jetbrains.annotations.Nullable;
 import org.lwjgl.openal.AL10;
 import org.lwjgl.stb.STBVorbis;
@@ -27,18 +28,20 @@ import java.nio.ShortBuffer;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
+import java.util.Random;
 import java.util.function.Supplier;
 
 @Environment(EnvType.CLIENT)
 public class AudioPlayer {
     private static final Supplier<MinecraftClient> CLIENT = MinecraftClient::getInstance;
+    private static final Random RANDOM = new Random();
     private final List<MusicData> playlist;
     private final Object2IntMap<MusicData> bufferIds = new Object2IntLinkedOpenHashMap<>();
     private final int source;
     private int currentIndex = -1;
     private boolean isPaused = false;
     private boolean isStopped = true;
-    private boolean looping = false;
+    private PlayMode mode = PlayMode.RANDOM;
 
     public AudioPlayer(List<MusicData> playlist) {
         RenderSystem.assertOnRenderThread();
@@ -52,7 +55,7 @@ public class AudioPlayer {
         for (MusicData data : this.playlist)
             try {
                 String filepath = data.absoluteSongPath();
-                BGMPlayer.LOGGER.info("Start loading {}", filepath);
+                BGMPlayer.LOGGER.info("Loading {}", filepath);
                 int buffer;
                 if (filepath.endsWith(".wav")) buffer = this.loadWav(filepath);
                 else if (filepath.endsWith(".ogg")) buffer = this.loadOgg(filepath);
@@ -76,6 +79,11 @@ public class AudioPlayer {
         if (!this.playlist.isEmpty()) this.play(0);
     }
 
+    public void play(MusicData data) {
+        int i = this.playlist.indexOf(data);
+        if (i != -1) this.play(i);
+    }
+
     public void play(int index) {
         RenderSystem.assertOnRenderThread();
         this.stop();
@@ -90,7 +98,6 @@ public class AudioPlayer {
             }
             int buffer = this.bufferIds.getInt(data);
             AL10.alSourcei(this.source, AL10.AL_BUFFER, buffer);
-            AL10.alSourcei(this.source, AL10.AL_LOOPING, this.looping ? AL10.AL_TRUE : AL10.AL_FALSE);
             AL10.alSourcePlay(this.source);
             Thread thread = new Thread(this::monitorTick);
             thread.setName("BGM Player Monitor");
@@ -107,8 +114,12 @@ public class AudioPlayer {
                 Thread.sleep(100);
                 CLIENT.get().execute(() -> this.setVolume(CLIENT.get().options.getSoundVolume(SoundCategory.MUSIC)));
                 if (this.isStopped) break;
-                if (this.getState() == AL10.AL_STOPPED) {
-                    if (!this.looping) CLIENT.get().execute(this::next);
+                if (this.getState() == PlayState.STOPPED) {
+                    CLIENT.get().execute(() -> this.play(switch (this.mode) {
+                        case PLAYLIST -> (this.currentIndex + 1) % this.playlist.size();
+                        case SINGLE_LOOPING -> this.currentIndex;
+                        case RANDOM -> RANDOM.nextInt(this.playlist.size());
+                    }));
                     break;
                 }
             } catch (Exception e) {
@@ -158,15 +169,18 @@ public class AudioPlayer {
             int channels = sound.isStereo() ? AL10.AL_FORMAT_STEREO16 : AL10.AL_FORMAT_MONO16;
             int sampleRate = sound.getSamplingFrequency();
             byte[] bufferArray = sound.readAllBytes();
-
             int buffer = AL10.alGenBuffers();
             AL10.alBufferData(buffer, channels, MemoryUtil.memAlloc(bufferArray.length).put(bufferArray).flip(), sampleRate);
             return buffer;
         }
     }
 
-    public int getState() {
-        return AL10.alGetSourcei(this.source, AL10.AL_SOURCE_STATE);
+    public PlayState getState() {
+        return switch (AL10.alGetSourcei(this.source, AL10.AL_SOURCE_STATE)) {
+            case AL10.AL_PLAYING -> PlayState.PLAYING;
+            case AL10.AL_PAUSED -> PlayState.PAUSED;
+            default -> PlayState.STOPPED;
+        };
     }
 
     public void next() {
@@ -202,9 +216,7 @@ public class AudioPlayer {
 
     @Nullable
     public MusicData getCurrentSong() {
-        if (this.currentIndex >= 0 && this.currentIndex < this.playlist.size())
-            return this.playlist.get(this.currentIndex);
-        return null;
+        return this.getState() == PlayState.PLAYING && this.currentIndex >= 0 && this.currentIndex < this.playlist.size() ? this.playlist.get(this.currentIndex) : null;
     }
 
     public void setVolume(float volume) {
@@ -212,7 +224,30 @@ public class AudioPlayer {
         AL10.alSourcef(this.source, AL10.AL_GAIN, volume);
     }
 
-    public void setLooping(boolean loop) {
-        this.looping = loop;
+    public void setPlayMode(PlayMode mode) {
+        this.mode = mode;
+    }
+
+    public enum PlayMode implements StringIdentifiable {
+        PLAYLIST("playlist"),
+        SINGLE_LOOPING("single_looping"),
+        RANDOM("random");
+
+        @SuppressWarnings("deprecation")
+        public static final Codec<PlayMode> CODEC = StringIdentifiable.createCodec(PlayMode::values);
+        private final String name;
+
+        PlayMode(String name) {
+            this.name = name;
+        }
+
+        @Override
+        public String asString() {
+            return this.name;
+        }
+    }
+
+    public enum PlayState {
+        PLAYING, PAUSED, STOPPED
     }
 }

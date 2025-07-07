@@ -1,0 +1,12 @@
+{
+  "screen.bgm_player.close": "关闭",
+  "screen.bgm_player.now_playing": "正在播放：%s",
+  "screen.bgm_player.pause": "暂停",
+  "screen.bgm_player.play_selected": "播放选中音乐",
+  "screen.bgm_player.resume": "继续",
+  "screen.bgm_player.title": "背景音乐播放管理器",
+  "screen.bgm_player.next": "下一首",
+  "screen.bgm_player.previous": "上一首",
+  "screen.bgm_player.author": "作者：%s",
+  "screen.bgm_player.album": "专辑：%s"
+}

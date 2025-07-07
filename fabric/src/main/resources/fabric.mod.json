@@ -3,24 +3,17 @@
   "id": "bgm_player",
   "version": "${version}",
   "name": "BGM Player",
-  "description": "This is an example description! Tell everyone what your mod is about!",
+  "description": "A more format supported, adjustable and continuous bgm system.",
   "authors": [
-    "Me!"
+    "IAFEnvoy"
   ],
   "contact": {
-    "homepage": "https://fabricmc.net/",
-    "sources": "https://github.com/FabricMC/fabric-example-mod"
+    "sources": "https://github.com/IAFEnvoy/BGMPlayer"
   },
-  "license": "CC0-1.0",
-  "icon": "assets/bgm_player/icon.png",
+  "license": "LGPL-3.0",
+  "icon": "logo.png",
   "environment": "*",
   "entrypoints": {
-    "main": [
-      "com.iafenvoy.bgm.player.fabric.BGMPlayerFabric"
-    ],
-    "client": [
-      "com.iafenvoy.bgm.player.fabric.client.BGMPlayerFabricClient"
-    ],
     "modmenu": [
       "com.iafenvoy.bgm.player.fabric.ModMenu"
     ]

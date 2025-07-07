@@ -1,0 +1,12 @@
+{
+  "screen.bgm_player.close": "Close",
+  "screen.bgm_player.now_playing": "Now playing: %s",
+  "screen.bgm_player.pause": "Pause",
+  "screen.bgm_player.play_selected": "Play Selected",
+  "screen.bgm_player.resume": "Resume",
+  "screen.bgm_player.title": "BGM Player Manager",
+  "screen.bgm_player.next": "Next",
+  "screen.bgm_player.previous": "Previous",
+  "screen.bgm_player.author": "Author: %s",
+  "screen.bgm_player.album": "Album: %s"
+}

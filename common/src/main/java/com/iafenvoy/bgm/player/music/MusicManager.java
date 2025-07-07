@@ -2,7 +2,6 @@ package com.iafenvoy.bgm.player.music;
 
 import com.google.gson.JsonParser;
 import com.iafenvoy.bgm.player.BGMPlayer;
-import com.mojang.serialization.Codec;
 import com.mojang.serialization.JsonOps;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
@@ -24,6 +23,7 @@ public final class MusicManager {
 
     private static void load() {
         DATA.clear();
+        MusicConfig.load();
         Map<String, MusicData> byId = new LinkedHashMap<>();
         File musicFolder = new File(FOLDER + "music");
         File[] musics = musicFolder.listFiles();
@@ -37,13 +37,9 @@ public final class MusicManager {
             } catch (Exception e) {
                 BGMPlayer.LOGGER.error("Failed to load music.", e);
             }
-        try {
-            for (String id : Codec.STRING.listOf().parse(JsonOps.INSTANCE, JsonParser.parseReader(new FileReader(FOLDER + "playlist.json"))).resultOrPartial(BGMPlayer.LOGGER::error).orElseThrow())
-                if (byId.containsKey(id)) DATA.add(byId.remove(id));
-                else BGMPlayer.LOGGER.warn("Unknown id in playlist.json {}.", id);
-        } catch (Exception e) {
-            BGMPlayer.LOGGER.error("Failed to load playlist.", e);
-        }
+        for (String id : MusicConfig.getInstance().getPlaylist())
+            if (byId.containsKey(id)) DATA.add(byId.remove(id));
+            else BGMPlayer.LOGGER.warn("Unknown id in playlist.json {}.", id);
         DATA.addAll(byId.values());
         BGMPlayer.LOGGER.info("Successfully loaded {} bgm data.", DATA.size());
     }
@@ -52,9 +48,14 @@ public final class MusicManager {
         return List.copyOf(DATA);
     }
 
+    public static @Nullable AudioPlayer getPlayer() {
+        return PLAYER;
+    }
+
     public static void createPlayer() {
         load();
         PLAYER = new AudioPlayer(getData());
+        PLAYER.setPlayMode(MusicConfig.getInstance().getMode());
         PLAYER.play();
     }
 
