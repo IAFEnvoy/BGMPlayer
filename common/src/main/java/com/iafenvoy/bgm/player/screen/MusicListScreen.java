@@ -68,7 +68,6 @@ public class MusicListScreen extends Screen {
     @Override
     public void render(DrawContext context, int mouseX, int mouseY, float delta) {
         super.renderBackground(context);
-        this.widget.render(context, mouseX, mouseY, delta);
         context.drawCenteredTextWithShadow(this.textRenderer, Text.translatable("screen.bgm_player.title"), this.width / 2, 10, -1);
         this.getCurrentPlaying().ifPresent(data -> context.drawCenteredTextWithShadow(this.textRenderer, Text.translatable("screen.bgm_player.now_playing", Text.literal(data.name())), this.width / 2, this.height - 18, -1));
         super.render(context, mouseX, mouseY, delta);

@@ -17,6 +17,7 @@ public class MusicListWidget extends AlwaysSelectedEntryListWidget<MusicListWidg
     public MusicListWidget(MusicListScreen screen, MinecraftClient client, int left, int right, int top, int bottom, int entryHeight) {
         super(client, right - left, bottom - top, top, bottom, entryHeight);
         this.screen = screen;
+        this.setRenderHorizontalShadows(false);
         this.updateSize(left, right, top, bottom);
     }
 

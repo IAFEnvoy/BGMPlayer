@@ -33,7 +33,8 @@ dependencies {
     common(project(path: ':common', configuration: 'namedElements')) { transitive false }
     shadowBundle project(path: ':common', configuration: 'transformProductionFabric')
 
-    implementation(include('fr.delthas:javamp3:1.0.1'))
+    implementation(include("fr.delthas:javamp3:1.0.1"))
+    implementation(include("org.sejda.webp-imageio:webp-imageio-sejda:0.1.0"))
 
     modApi "com.terraformersmc:modmenu:7.2.2"
 }

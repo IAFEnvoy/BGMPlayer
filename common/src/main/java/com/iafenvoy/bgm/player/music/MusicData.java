@@ -1,6 +1,7 @@
 package com.iafenvoy.bgm.player.music;
 
 import com.iafenvoy.bgm.player.BGMPlayer;
+import com.iafenvoy.bgm.player.util.ImageUtil;
 import com.iafenvoy.bgm.player.util.SimpleTexture;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
@@ -8,8 +9,6 @@ import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.texture.NativeImage;
 import net.minecraft.util.Identifier;
 
-import javax.imageio.ImageIO;
-import java.awt.image.BufferedImage;
 import java.io.*;
 import java.util.Optional;
 
@@ -40,7 +39,7 @@ public final class MusicData {
             try {
                 String p = FOLDER + this.icon.get();
                 InputStream inputStream = new FileInputStream(p);
-                if (!p.endsWith(".png")) inputStream = convertToPng(inputStream);
+                if (!p.endsWith(".png")) inputStream = ImageUtil.convertToPng(inputStream);
                 SimpleTexture texture = new SimpleTexture(NativeImage.read(inputStream));
                 texture.upload(false, false);
                 MinecraftClient.getInstance().getTextureManager().registerTexture(this.iconId, texture);
@@ -75,24 +74,5 @@ public final class MusicData {
 
     public Identifier getIconId() {
         return this.iconId;
-    }
-
-    public static InputStream convertToPng(InputStream imageStream) throws IOException {
-        try {
-            BufferedImage image = ImageIO.read(imageStream);
-            ByteArrayOutputStream baos = new ByteArrayOutputStream();
-            ImageIO.write(image, "PNG", baos);
-            return new ByteArrayInputStream(baos.toByteArray());
-        } catch (IOException e) {
-            System.err.println("图像处理错误: " + e.getMessage());
-            throw e;
-        } finally {
-            if (imageStream != null)
-                try {
-                    imageStream.close();
-                } catch (IOException e) {
-                    System.err.println("关闭输入流失败: " + e.getMessage());
-                }
-        }
     }
 }

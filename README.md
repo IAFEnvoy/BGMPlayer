@@ -38,10 +38,10 @@ All music config save in `.minecraft/config/bgm-player/music/`.
 {
   "name": "Name display in the music list",
   //Relative path of .minecraft/config/bgm-player/resource/
-  "path": "The music path, support wav, ogg and mp3",
+  "path": "The music path. Support wav, ogg and mp3.",
   "author": "(Optional) Music author",
   "album": "(Optional) Music album",
   //Relative path of .minecraft/config/bgm-player/resource/
-  "icon": "(Optional) The icon path, support png and jpg"
+  "icon": "(Optional) The icon path. Support png, jpg and webp."
 }
 ```
