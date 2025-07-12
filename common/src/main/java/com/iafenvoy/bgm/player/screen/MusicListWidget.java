@@ -14,19 +14,10 @@ public class MusicListWidget extends AlwaysSelectedEntryListWidget<MusicListWidg
     private final MusicListScreen screen;
     private final List<Entry> entries = new ArrayList<>();
 
-    public MusicListWidget(MusicListScreen screen, MinecraftClient client, int left, int right, int top, int bottom, int entryHeight) {
-        super(client, right - left, bottom - top, top, bottom, entryHeight);
+    public MusicListWidget(MusicListScreen screen, MinecraftClient client, int width, int height, int x, int y, int entryHeight) {
+        super(client, width, height, y, entryHeight);
         this.screen = screen;
-        this.setRenderHorizontalShadows(false);
-        this.updateSize(left, right, top, bottom);
-    }
-
-    @Override
-    public void updateSize(int left, int right, int top, int bottom) {
-        this.left = left;
-        this.right = right;
-        this.top = top;
-        this.bottom = bottom;
+        this.setDimensionsAndPosition(width, height, x, y);
     }
 
     public void setData(List<MusicData> list) {
@@ -37,8 +28,8 @@ public class MusicListWidget extends AlwaysSelectedEntryListWidget<MusicListWidg
     }
 
     @Override
-    protected int getScrollbarPositionX() {
-        return this.right - 5;
+    protected int getScrollbarX() {
+        return this.getX() + this.width - 5;
     }
 
     @Override
