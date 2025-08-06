@@ -37,7 +37,7 @@ dependencies {
     shadowBundle project(path: ':common', configuration: 'transformProductionForge')
 
     implementation(include("fr.delthas:javamp3:1.0.1"))
-    implementation(include("org.sejda.webp-imageio:webp-imageio-sejda:0.1.0"))
+    implementation(include("com.twelvemonkeys.imageio:imageio-webp:3.12.0"))
 }
 
 processResources {
