@@ -11,4 +11,4 @@ rootProject.name = 'bgm_player'
 
 include 'common'
 include 'fabric'
-include 'forge'
+include 'neoforge'

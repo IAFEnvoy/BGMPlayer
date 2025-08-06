@@ -2,6 +2,7 @@ package com.iafenvoy.bgm.player.music;
 
 import com.iafenvoy.bgm.player.BGMPlayer;
 import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.serialization.Codec;
 import fr.delthas.javamp3.Sound;
 import it.unimi.dsi.fastutil.objects.Object2IntLinkedOpenHashMap;
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
@@ -233,7 +234,6 @@ public class AudioPlayer {
         SINGLE_LOOPING("single_looping"),
         RANDOM("random");
 
-        @SuppressWarnings("deprecation")
         public static final Codec<PlayMode> CODEC = StringIdentifiable.createCodec(PlayMode::values);
         private final String name;
 

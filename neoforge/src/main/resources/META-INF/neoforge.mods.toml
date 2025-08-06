@@ -1,5 +1,5 @@
 modLoader = "javafml"
-loaderVersion = "[47,)"
+loaderVersion = "[2,)"
 issueTrackerURL = "https://github.com/IAFEnvoy/BGMPlayer/issues"
 license = "LGPL-3.0"
 
@@ -14,15 +14,18 @@ A more format supported, adjustable and continuous bgm system.
 logoFile = "logo.png"
 
 [[dependencies.bgm_player]]
-modId = "forge"
+modId = "neoforge"
 mandatory = true
-versionRange = "[47,)"
+versionRange = "[21,)"
 ordering = "NONE"
 side = "BOTH"
 
 [[dependencies.bgm_player]]
 modId = "minecraft"
 mandatory = true
-versionRange = "[1.20.1,1.20.5)"
+versionRange = "[1.21,1.21.2)"
 ordering = "NONE"
 side = "BOTH"
+
+[[mixins]]
+config = "bgm_player.mixins.json"

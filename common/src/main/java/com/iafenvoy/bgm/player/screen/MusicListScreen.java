@@ -27,10 +27,10 @@ public class MusicListScreen extends Screen {
     @Override
     protected void init() {
         super.init();
-        if (this.initialized) this.widget.updateSize(100, this.width - 20, 25, this.height - 25);
+        if (this.initialized) this.widget.setDimensionsAndPosition(this.width - 120, this.height - 50, 100, 25);
         else {
             this.initialized = true;
-            this.widget = new MusicListWidget(this, this.client, 100, this.width - 20, 25, this.height - 25, 36);
+            this.widget = new MusicListWidget(this, this.client, this.width - 120, this.height - 50, 100, 25, 36);
             this.widget.setData(MusicManager.getData());
         }
         this.addDrawableChild(this.widget);
@@ -67,10 +67,9 @@ public class MusicListScreen extends Screen {
 
     @Override
     public void render(DrawContext context, int mouseX, int mouseY, float delta) {
-        super.renderBackground(context);
+        super.render(context, mouseX, mouseY, delta);
         context.drawCenteredTextWithShadow(this.textRenderer, Text.translatable("screen.bgm_player.title"), this.width / 2, 10, -1);
         this.getCurrentPlaying().ifPresent(data -> context.drawCenteredTextWithShadow(this.textRenderer, Text.translatable("screen.bgm_player.now_playing", Text.literal(data.name())), this.width / 2, this.height - 18, -1));
-        super.render(context, mouseX, mouseY, delta);
     }
 
     @Override
